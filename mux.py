@@ -15,7 +15,7 @@ def adc_sel(sel):
     pin.amux1.value = mux_sel_array[2]
     pin.amux2.value = mux_sel_array[1]
     pin.amux3.value = mux_sel_array[0]
-    print("ADC MUX", sel, mux_sel_array)
+    # print("ADC MUX", sel, mux_sel_array)
     return 0
 
 
@@ -25,7 +25,7 @@ def dac_sel(sel):
     pin.dmux1.value = mux_sel_array[2]
     pin.dmux2.value = mux_sel_array[1]
     pin.dmux3.value = mux_sel_array[0]
-    print("DAC MUX", sel, mux_sel_array)
+    # print("DAC MUX", sel, mux_sel_array)
     return 0
 
 
@@ -37,5 +37,23 @@ def en_on():
 
 def en_off():
     pin.amux_en.value = 0
+    pin.dmux_en.value = 0
+    return 0
+
+def adc_en_on():
+    pin.amux_en.value = 1
+    return 0
+
+
+def adc_en_off():
+    pin.amux_en.value = 0
+    return 0
+
+def dac_en_on():
+    pin.dmux_en.value = 1
+    return 0
+
+
+def dac_en_off():
     pin.dmux_en.value = 0
     return 0
