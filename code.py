@@ -1,12 +1,16 @@
 import board
+import busio
+import time
 import mux
 import cable_test
 import sd_card
 
 if board.board_id == "metro_m4_express":
     import metro_m4_pinmapping as pin
-else:
+elif board.board_id == "grandcentral_m4_express":
     import grand_m4_pinmapping as pin
+else:
+    print("Board not supported")
 
 sd_card.mount_filesystem()
 cable_asm_dict = sd_card.load_dict("cable.json")
@@ -19,7 +23,12 @@ while True:
     print("****************************************************")
     print("1) Scan & Print Current Connections")
     print("2) Store new Cable Assembly")
-    print("3) Check Cable Assembly", end="\n\n")
+    print("3) Check Cable Assembly")
+    print("x1) Manually set RX Mux")
+    print("x2) Manually set TX Mux")
+    print("rx) Set board to RX test") 
+    print("tx) Set board to TX test", end="\n\n" )
+
     print("Select Option >>> ", end="")
 
     user_input = input()  # type and press enter
@@ -35,7 +44,7 @@ while True:
         user_input = input()  # type and press enter
         print("")
 
-        conn_found = cable_test.scan
+        conn_found = cable_test.scan()
 
         for item in conn_found:
             print(item)
@@ -56,7 +65,7 @@ while True:
         if stored_cable_conn is None:
             print(" !Cable Assembly Not Found", end="\n\n")
         else:
-            conn_found = cable_test.scan
+            conn_found = cable_test.scan()
 
             print("Tested Cable Assembly Connections")
             for item in conn_found:
@@ -70,7 +79,46 @@ while True:
                 print("Cable Assembly Tests GOOD")
             else:
                 print("Cable Assembly Test FAILURE")
+    elif user_input == "x1":
+        print("Setting RX Mux to (1-16) >>> ", end="")
+        user_input = input()  # type and press enter
+        print("")
+        if (1<user_input<17):
+            print("Setting RX Mux to %i", user_input)
+            mux.dac_sel(user_input)
+        else:
+            print("User Input - Out of Range")
+            
+    elif user_input == "x2":
+        print("Setting RX Mux to (1-16) >>> ", end="")
+        user_input = input()  # type and press enter
+        print("")
+        if (1<user_input<17):
+            print("Setting RX Mux to %i", user_input)
+            mux.adc_sel(user_input)
+        else:
+            print("User Input - Out of Range")
 
+    elif user_input == "rx":
+        print("Starting in RX Test mode - will require restart to exit")
+        # Pins for Metro M4 Board D2 is RX; D3 is TX
+        # Pins for Grand Central M4 Board D17 is RX; D16 is TX
+        uart = busio.UART(pin.tx, pin.rx, baudrate=115200, timeout=0.1)  # timeout in seconds
+        buf = bytearray(64)
+        while True:
+            n = uart.readinto(buf)
+            if n:
+                print(bytes(memoryview(buf)[:n]).decode("utf-8"), end="")
+    
+    elif user_input == "tx":
+        print("Starting in TX Test mode - will require restart to exit")
+        # Pins for Metro M4 Board D2 is RX; D3 is TX
+        # Pins for Grand Central M4 Board D17 is RX; D16 is TX
+        uart = busio.UART(pin.tx, pin.rx, baudrate=115200, timeout=0.1)  # timeout in seconds
+        while True:
+            uart.write(b"Hello over AC-coupled UART!\r\n")
+            time.sleep(0.25)
+            
     elif user_input == "cal_board":  #Hidden function call
         cable_test.cal_board()
     

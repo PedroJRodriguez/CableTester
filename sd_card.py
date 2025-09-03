@@ -1,18 +1,21 @@
-import adafruit_sdcard
+import board
 import busio
 import digitalio
-import board
+import adafruit_sdcard
 import storage
 import json
 
 def mount_filesystem():
-    # Connect to the card and mount the filesystem.
-    spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-    cs = digitalio.DigitalInOut(board.SD_CS)
-    sdcard = adafruit_sdcard.SDCard(spi, cs)
-    vfs = storage.VfsFat(sdcard)
-    storage.mount(vfs, "/sd")
-    return None
+    if board.board_id == "grandcentral_m4_express":
+        # Connect to the card and mount the filesystem.
+        spi = busio.SPI(board.SD_SCK, board.SD_MOSI, board.SD_MISO)
+        cs = digitalio.DigitalInOut(board.SD_CS)
+        sdcard = adafruit_sdcard.SDCard(spi, cs)
+        vfs = storage.VfsFat(sdcard)
+        storage.mount(vfs, "/sd")
+        return None
+    else:
+        print("SD Card Not Supported")
 
 def load_dict(filename):
     try:

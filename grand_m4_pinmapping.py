@@ -12,6 +12,9 @@ led.direction = digitalio.Direction.OUTPUT
 dac = analogio.AnalogOut(board.A0)  # output on pin A0
 adc = analogio.AnalogIn(board.A5)  # input on pin A5
 
+rx = board.D17
+tx = board.D16
+
 amux_en = digitalio.DigitalInOut(board.D24)
 amux0 = digitalio.DigitalInOut(board.D26)
 amux1 = digitalio.DigitalInOut(board.D28)
